@@ -6,21 +6,33 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$baseCoverageDir = '';
-$additionalCoverageDir = '';
-$deltaDestinationPath = '';
+/**
+ * The main entrypoint. Called at the bottom of this file.
+ */
+function main() {
+    $baseCoverageDir = '/Users/treece/tmp/base';
+    $additionalCoverageDir = '/Users/treece/tmp/additional';
+    $deltaDestinationPath = '/Users/treece/tmp/delta.cov';
 
-$baseCoverage = readCoverageFromFolder($baseCoverageDir);
+    $baseCoverage = readCoverageFromFolder($baseCoverageDir);
 
-$deltaData = filterDataByFile($additionalCoverageDir, $baseCoverage->getData(true));
+    $deltaData = filterDataByFile($additionalCoverageDir, $baseCoverage->getData(true));
 
-$baseCoverage->setData($deltaData);
+    $baseCoverage->setData($deltaData);
 
-$writeString = buildDataString($baseCoverage);
-file_put_contents($deltaDestinationPath, $writeString);
+    $writeString = buildDataString($baseCoverage);
+    file_put_contents($deltaDestinationPath, $writeString);
 
-printf("Coverage Diff written to $deltaDestinationPath\n");
+    printf("Coverage Diff written to $deltaDestinationPath\n");
+}
 
+/**
+ * Reads each .cov file in a directory and merge that file's contents into a single \CodeCoverage
+ * class instance in memory.
+ *
+ * @param string $coveragePath
+ * @return \SebastianBergmann\CodeCoverage\CodeCoverage
+ */
 function readCoverageFromFolder($coveragePath) {
     $fileCount = count(scandir($coveragePath));
     $currentFile = 0;
@@ -40,10 +52,11 @@ function readCoverageFromFolder($coveragePath) {
         $coverage->merge($fileCoverage);
     }
     return $coverage;
-
 }
 
-
+/**
+ * Reads a single .cov file into memory.
+ */
 function readCoverage($coveragePath) {
     if (!is_file($coveragePath)) {
         return null;
@@ -52,7 +65,13 @@ function readCoverage($coveragePath) {
     return $file;
 }
 
-
+/**
+ * Removes array entries from $base data array if they are in the $delta data array.
+ *
+ * @param string[] $base A mapping of filename => line numbers => test names. Comes from \CodeCoverage class.
+ * @param string[] $delta A mapping of filename => line numbers => test names. Comes from \CodeCoverage class.
+ * @return mixed
+ */
 function filterData($base, $delta) {
     foreach ($delta as $fileName => $lineArrays) {
         if (!isset($base[$fileName])) {
@@ -66,8 +85,14 @@ function filterData($base, $delta) {
     return $base;
 }
 
+/**
+ * Reads and filters all files in $folder from the $base data array.
+ *
+ * @param string $folder
+ * @param string[] $base
+ * @return mixed
+ */
 function filterDataByFile($folder, $base) {
-
     $baseData = $base;
     $fileCount = count(scandir($folder));
     printf("Starting coverage diff...\n");
@@ -86,7 +111,12 @@ function filterDataByFile($folder, $base) {
     return $baseData;
 }
 
-
+/**
+ * Generates the final delta file from an already diff'ed \CodeCoverage object.
+ *
+ * @param \SebastianBergmann\CodeCoverage\CodeCoverage $coverage
+ * @return string
+ */
 function buildDataString($coverage)
 {
     printf("Formatting coverage for output...\n");
@@ -105,6 +135,4 @@ function buildDataString($coverage)
     return $output;
 }
 
-
-
-
+main();
