@@ -20,10 +20,11 @@ function main() {
 }
 
 /**
- * Reads each .cov file in a directory and merge that file's contents into a single \CodeCoverage
- * class instance in memory.
+ * Reads each .cov file in a directory and renames all the tests in the coverage to the given newName.
  *
  * @param string $coveragePath
+ * @param string $outputDir
+ * @param string $newName
  * @return void
  */
 function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
@@ -31,7 +32,6 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
     $currentFile = 0;
     printf("Reading base coverage...\n");
 
-    $coverage = new \SebastianBergmann\CodeCoverage\CodeCoverage();
     foreach (scandir($coveragePath) as $file) {
         printf("Reading ($currentFile/$fileCount)\r");
         $currentFile += 1;
@@ -59,7 +59,6 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
         $fileCoverage->setTests($newTestArray);
         $writeString = buildDataString($fileCoverage);
         file_put_contents($outputDir.DIRECTORY_SEPARATOR.$file, $writeString);
-
     }
 }
 
@@ -72,52 +71,6 @@ function readCoverage($coveragePath) {
     }
     $file = include($coveragePath);
     return $file;
-}
-
-/**
- * Removes array entries from $base data array if they are in the $delta data array.
- *
- * @param string[] $base A mapping of filename => line numbers => test names. Comes from \CodeCoverage class.
- * @param string[] $delta A mapping of filename => line numbers => test names. Comes from \CodeCoverage class.
- * @return mixed
- */
-function filterData($base, $delta) {
-    foreach ($delta as $fileName => $lineArrays) {
-        if (!isset($base[$fileName])) {
-            continue;
-        }
-        foreach ($lineArrays as $lineNumber => $testNames) {
-            //Remove line if present in delta
-            unset($base[$fileName][$lineNumber]);
-        }
-    }
-    return $base;
-}
-
-/**
- * Reads and filters all files in $folder from the $base data array.
- *
- * @param string $folder
- * @param string[] $base
- * @return mixed
- */
-function filterDataByFile($folder, $base) {
-    $baseData = $base;
-    $fileCount = count(scandir($folder));
-    printf("Starting coverage diff...\n");
-    $currentFile = 0;
-
-    foreach (scandir($folder) as $file) {
-        $currentFile+= 1;
-        printf("Comparing ($currentFile/$fileCount)\r");
-        if (pathinfo($file)['extension'] !== 'cov') {
-            continue;
-        }
-        $fileCoverage = readCoverage($folder . DIRECTORY_SEPARATOR . $file);
-        $baseData = filterData($baseData, $fileCoverage->getData(true));
-    }
-
-    return $baseData;
 }
 
 /**
