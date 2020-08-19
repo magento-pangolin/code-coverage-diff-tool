@@ -9,14 +9,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 /**
  * The main entrypoint. Called at the bottom of this file.
  */
-function main() {
-    $baseCoverageDir = '/Users/kkozan/Downloads/MQE-2191/webApi';
-    $outputDir = '/Users/kkozan/Downloads/MQE-2191/webApiNew';
-    $newName = "WebApi";
-
-     readCoverageFromFolder($baseCoverageDir, $outputDir, $newName);
-
-    printf("Renamed Coverage written to $outputDir\n");
+function main($baseCoverageDir, $outputDir, $newName) {
+    readCoverageFromFolder($baseCoverageDir, $outputDir, $newName);
 }
 
 /**
@@ -28,9 +22,22 @@ function main() {
  * @return void
  */
 function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
+    if (!realpath($coveragePath)) {
+        printf("No coverage files found in $coveragePath\n");
+        return;
+    }
+    if (!realpath($outputDir)) {
+        printf("Invalid output directory $coveragePath\n");
+        return;
+    }
+    if (empty($newName)) {
+        printf("New test name must be non empty\n");
+        return;
+
+    }
     $fileCount = count(scandir($coveragePath));
     $currentFile = 0;
-    printf("Reading base coverage...\n");
+    printf("Reading coverage...\n");
 
     foreach (scandir($coveragePath) as $file) {
         printf("Reading ($currentFile/$fileCount)\r");
@@ -60,6 +67,7 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
         $writeString = buildDataString($fileCoverage);
         file_put_contents($outputDir.DIRECTORY_SEPARATOR.$file, $writeString);
     }
+    printf("Renamed Coverage written to $outputDir\n");
 }
 
 /**
@@ -94,5 +102,9 @@ function buildDataString($coverage)
 
     return $output;
 }
+if (array_count_values($argv) !== 4) {
+    printf("This script requires 3 parameters to run:\nInputDirectory OutputDirectory NewTestNames");
+} else {
+    main($argv[1],$argv[2],$argv[3]);
 
-main();
+}
