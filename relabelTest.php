@@ -102,7 +102,7 @@ function buildDataString($coverage)
 
     return $output;
 }
-if (array_count_values($argv) !== 4) {
+if (array_key_exists($argv, 4)) {
     printf("This script requires 3 parameters to run:\nInputDirectory OutputDirectory NewTestNames");
 } else {
     main($argv[1],$argv[2],$argv[3]);
