@@ -34,7 +34,7 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath) {
         printf("Reading ($currentFile/$fileCount)\r");
         $currentFile += 1;
         if (pathinfo($coveragePath . $file)['extension'] !== 'cov') {
-            printf("Skipping file $currentFile\r");
+            printf("Skipping file $coveragePath . $file\r");
             continue;
         }
         $fileCoverage = readCoverage($coveragePath . DIRECTORY_SEPARATOR . $file);
