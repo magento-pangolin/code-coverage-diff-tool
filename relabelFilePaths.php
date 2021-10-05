@@ -33,11 +33,7 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath) {
     foreach (scandir($coveragePath) as $file) {
         printf("Reading ($currentFile/$fileCount)\r");
         $currentFile += 1;
-        if (!isset(pathinfo($file)['extension'])) {
-            printf("Skipping file $currentFile\r");
-            continue;
-        }
-        if (pathinfo($file)['extension'] !== 'cov') {
+        if (pathinfo($coveragePath . $file)['extension'] !== 'cov') {
             printf("Skipping file $currentFile\r");
             continue;
         }
