@@ -48,6 +48,7 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath) {
         $newProcessedData = new \SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData();
         $newProcessedData->setLineCoverage($newData);
         $fileCoverage->setData($newProcessedData);
+        unlink($coveragePath.$file);
         $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
         $writer->process($fileCoverage, $coveragePath . $file);
     }
