@@ -41,13 +41,11 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath) {
         $newData = [];
         foreach ($fileCoverage->getData(true)->lineCoverage() as $testFile => $content) {
             $newTestFilePath = str_replace($oldPath, $newPath, $testFile);
-            printf("$testFile\n$newTestFilePath\n\n");
             $newData[$newTestFilePath] = $content;
         }
         $newProcessedData = new \SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData();
         $newProcessedData->setLineCoverage($newData);
         $fileCoverage->setData($newProcessedData);
-        unlink($coveragePath.$file);
         $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
         $writer->process($fileCoverage, $coveragePath . $file);
     }
