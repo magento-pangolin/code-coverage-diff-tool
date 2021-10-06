@@ -21,7 +21,8 @@ function main($baseCoverageDir, $oldPath, $newPath) {
  * @param string $newPath
  * @return void
  */
-function readCoverageFromFolder($coveragePath, $oldPath, $newPath) {
+function readCoverageFromFolder($coveragePath, $oldPath, $newPath)
+{
     if (!realpath($coveragePath)) {
         printf("No coverage files found in $coveragePath\n");
         return;
@@ -38,14 +39,42 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath) {
             continue;
         }
         $fileCoverage = readCoverage($coveragePath . DIRECTORY_SEPARATOR . $file);
+        // rebuild coverage data
         $newData = [];
         foreach ($fileCoverage->getData(true)->lineCoverage() as $testFile => $content) {
             $newTestFilePath = str_replace($oldPath, $newPath, $testFile);
             $newData[$newTestFilePath] = $content;
         }
+        //place lineCoverage
         $newProcessedData = new \SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData();
         $newProcessedData->setLineCoverage($newData);
         $fileCoverage->setData($newProcessedData);
+        // rebuild filter
+        $filter = $fileCoverage->filter();
+        call_user_func(\Closure::bind(
+            function () use ($filter, $oldPath, $newPath) {
+                foreach ($filter->files as $fileName => $isFile) {
+                    $newFile = str_replace($oldPath, $newPath, $fileName);
+                    unset($filter->files[$fileName]);
+                    $filter->files[$newFile] = $isFile;
+                }
+                foreach ($filter->isFileCache as $fileName => $isFile) {
+                    $newFile = str_replace($oldPath, $newPath, $fileName);
+                    unset($filter->isFileCache[$fileName]);
+                    $filter->isFileCache[$newFile] = $isFile;
+                }
+            },
+            null,
+            $filter
+        ));
+        //place new filter
+        call_user_func(\Closure::bind(
+            function () use ($fileCoverage, $filter) {
+                $fileCoverage->filter = $filter;
+            },
+            null,
+            $fileCoverage
+        ));
         $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
         $writer->process($fileCoverage, $coveragePath . $file);
     }
