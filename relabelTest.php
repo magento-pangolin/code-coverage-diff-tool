@@ -64,7 +64,7 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
         $newProcessedData->setLineCoverage($newData);
         $fileCoverage->setData($newProcessedData);
         $newTestArray = [];
-        $newTestArray[$newName] = ['size' => 'unknown', 'status' => -1, 'fromTestcase' => true];
+        $newTestArray[$newName] = ['size' => 'unknown', 'status' => 0, 'fromTestcase' => true];
         $fileCoverage->setTests($newTestArray);
         $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
         $writer->process($fileCoverage, $outputDir.DIRECTORY_SEPARATOR.$file);
