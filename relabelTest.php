@@ -38,6 +38,7 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
     $fileCount = count(scandir($coveragePath));
     $currentFile = 0;
     printf("Reading coverage...\n");
+    $debugflag = false;
 
     foreach (scandir($coveragePath) as $file) {
         printf("Reading ($currentFile/$fileCount)\r");
@@ -66,6 +67,14 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
         $newTestArray = [];
         $newTestArray[$newName] = ['size' => 'unknown', 'status' => 0, 'fromTestcase' => true];
         $fileCoverage->setTests($newTestArray);
+        if(!$debugflag) {
+            printf(key($fileCoverage->getData(true)->lineCoverage()));
+            printf("\n");
+            printf($fileCoverage->filter()->files()[0]);
+            printf("\n");
+
+            $debugflag = true;
+        }
         $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
         $writer->process($fileCoverage, $outputDir.DIRECTORY_SEPARATOR.$file);
     }

@@ -58,11 +58,7 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath)
                     unset($filter->files[$fileName]);
                     $filter->files[$newFile] = $isFile;
                 }
-                foreach ($filter->isFileCache as $fileName => $isFile) {
-                    $newFile = str_replace($oldPath, $newPath, $fileName);
-                    unset($filter->isFileCache[$fileName]);
-                    $filter->isFileCache[$newFile] = $isFile;
-                }
+                $filter->isFileCache = [];
             },
             null,
             $filter
