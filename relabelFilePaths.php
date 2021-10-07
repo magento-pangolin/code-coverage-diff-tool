@@ -80,7 +80,7 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath)
             $fileCoverage
         ));
         $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
-        $writer->process($fileCoverage, $coveragePath . $file);
+        $writer->process($fileCoverage, $coveragePath . DIRECTORY_SEPARATOR . $file);
     }
     printf("All .cov file paths changed in $coveragePath\n");
 }
