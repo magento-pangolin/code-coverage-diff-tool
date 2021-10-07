@@ -75,6 +75,14 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath)
             null,
             $fileCoverage
         ));
+        // delete cached analyzer
+        call_user_func(\Closure::bind(
+            function () use ($fileCoverage) {
+                $fileCoverage->coveredFileAnalyser = null;
+            },
+            null,
+            $fileCoverage
+        ));
         $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
         $writer->process($fileCoverage, $coveragePath . $file);
     }
