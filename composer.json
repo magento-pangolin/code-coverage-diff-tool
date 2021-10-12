@@ -1,6 +1,6 @@
 {
     "name": "magento/code-coverage-diff-tool",
     "require": {
-        "phpunit/phpcov": "^6.0"
+        "phpunit/phpcov": "8.2.0"
     }
 }
