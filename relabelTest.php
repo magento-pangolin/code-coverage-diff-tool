@@ -47,7 +47,7 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
         }
         $fileCoverage = readCoverage($coveragePath . DIRECTORY_SEPARATOR . $file);
         $newData = [];
-        foreach ($fileCoverage->getData(true) as $testFile => $content) {
+        foreach ($fileCoverage->getData(true)->lineCoverage() as $testFile => $content) {
             $newData[$testFile] = [];
             foreach ($content as $line =>$testNames) {
                 if (empty($testNames)) {
@@ -58,14 +58,15 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
                 $testArray[] = $newName;
                 $newData[$testFile][$line] = $testArray;
             }
-
         }
-        $fileCoverage->setData($newData);
+        $newProcessedData = new \SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData();
+        $newProcessedData->setLineCoverage($newData);
+        $fileCoverage->setData($newProcessedData);
         $newTestArray = [];
-        $newTestArray[$newName] = ['size' => 'unknown', 'status' => -1];
+        $newTestArray[$newName] = ['size' => 'unknown', 'status' => 0, 'fromTestcase' => true];
         $fileCoverage->setTests($newTestArray);
-        $writeString = buildDataString($fileCoverage);
-        file_put_contents($outputDir.DIRECTORY_SEPARATOR.$file, $writeString);
+        $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
+        $writer->process($fileCoverage, $outputDir.DIRECTORY_SEPARATOR.$file);
     }
     printf("Renamed Coverage written to $outputDir\n");
 }
@@ -81,27 +82,6 @@ function readCoverage($coveragePath) {
     return $file;
 }
 
-/**
- * Generates the final delta file from an already diff'ed \CodeCoverage object.
- *
- * @param \SebastianBergmann\CodeCoverage\CodeCoverage $coverage
- * @return string
- */
-function buildDataString($coverage)
-{
-    $output = "<?php\n\$coverage = new SebastianBergmann\CodeCoverage\CodeCoverage;\n\$coverage->setData(\n";
-    $output.= var_export($coverage->getData(true), true);
-
-    $output.= ");\n\n\$coverage->setTests(";
-    $output.= var_export($coverage->getTests(true), true);
-
-    $output.= ");\n\n\$filter = \$coverage->filter();\n\$filter->setWhitelistedFiles(";
-    $output.= var_export($coverage->filter()->getWhitelistedFiles(), true);
-
-    $output .= ");\n\nreturn \$coverage;";
-
-    return $output;
-}
 if (!array_key_exists(3, $argv)) {
     printf("This script requires 3 parameters to run:\nInputDirectory OutputDirectory NewTestNames");
 } else {
