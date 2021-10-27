@@ -49,7 +49,7 @@ php phpcov.phar merge ./deltaOutputPath/ --html=output
 ```
 
 ### mergeCoverage.php
-Define SRC_DIR, MERGE_DIR, and MERGE_SIZE in `mergeCoverage.php`, and run script to merge cov files in `SRC_DIR`
+Define `SRC_DIR`, `MERGE_DIR`, and `MERGE_SIZE` in `mergeCoverage.php`, and run script to merge cov files in `SRC_DIR`
 with merge size `MERGE_SIZE` and generate merged cov files in `MERGE_DIR`.
 ```
 php mergeCoverage.php

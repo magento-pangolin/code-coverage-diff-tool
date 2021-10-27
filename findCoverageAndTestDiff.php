@@ -99,7 +99,7 @@ function filterDataByFile(string $folder, array $base): array
     foreach (scandir($folder) as $file) {
         $currentFile+= 1;
         printf("\nComparing ($currentFile/$fileCount)\n");
-        if (pathinfo($file)['extension'] !== 'cov') {
+        if (!isset(pathinfo($file)['extension']) || pathinfo($file)['extension'] !== 'cov') {
             continue;
         }
 
