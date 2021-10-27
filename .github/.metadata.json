@@ -1,0 +1,30 @@
+{
+    "templateVersion": "0.1",
+    "product": {
+        "name": "Code coverage diff tool",
+        "description": "This tool finds difference between 2 codecoverage reports to identify interlinkage of code coverage."
+    },
+    "contacts": {
+        "team": {
+            "name": "Magento Quality Engineering / Pangolin",
+            "DL": "pangolin@adobe.com",
+            "slackChannel": "pangolins"
+        }
+    },
+    "ticketTracker": {
+        "functionalJiraQueue": {
+            "projectKey": "MQE",
+            "component": ""
+        },
+        "securityJiraQueue": {
+            "projectKey": "MAGREQ",
+            "component": "Test Infrastructure"
+        }
+    },
+    "staticScan": {
+        "enable": false,
+        "frequency": "",
+        "customName": "",
+        "branchesToScan": []
+    }
+}
