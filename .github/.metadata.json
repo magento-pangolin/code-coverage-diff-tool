@@ -14,7 +14,7 @@
     "ticketTracker": {
         "functionalJiraQueue": {
             "projectKey": "MQE",
-            "component": ""
+            "component": "Code Coverage Service"
         },
         "securityJiraQueue": {
             "projectKey": "MAGREQ",
