@@ -1,6 +1,7 @@
 {
     "name": "magento/code-coverage-diff-tool",
     "require": {
-        "phpunit/phpcov": "8.2.0"
+        "phpunit/phpcov": "8.2.0",
+        "sergeytsalkov/meekrodb": "*"
     }
 }
