@@ -30,6 +30,7 @@ function readCoverageFromFolder($coveragePath, $runID, $testType) {
     printf("Reading coverage...\n");
 
     require_once __DIR__ . DIRECTORY_SEPARATOR . 'db.class.php';
+    $start_time = microtime(TRUE);
     //INPUT RUN IF NOT PRESENT
     $run = DB::query("SELECT * FROM CC_RUN WHERE runid=%s", $runID);
     if (empty($run)) {
@@ -64,18 +65,23 @@ function readCoverageFromFolder($coveragePath, $runID, $testType) {
             continue;
         }
         $fileCoverage = readCoverage($coveragePath . DIRECTORY_SEPARATOR . $file);
+
         //TEST NAME INSERT
         foreach ($fileCoverage->getTests() as $testname => $content) {
+            //found in initial cache
             if (isset($cachedTests[$testname])) {
                 continue;
             }
-//            $existingTest = DB::query(
-//                "SELECT * FROM CC_TESTS WHERE ccrunid=%s AND testtype=%s AND testname=%s",
-//                $cachedCCRUNID, $testType, $testname
-//            );
-//            if (!empty($existingTest)) {
-//                continue;
-//            }
+            $existingTest = DB::query(
+                "SELECT * FROM CC_TESTS WHERE ccrunid=%s AND testtype=%s AND testname=%s",
+                $cachedCCRUNID, $testType, $testname
+            );
+            //not found in initial cache but found in DB
+            if (!empty($existingTest)) {
+                $cachedTests[$existingTest[0]['testname']] = $existingTest[0]['testid'];
+                continue;
+            }
+            //actual new record
             DB::insert("CC_TESTS", [
                 "testtype" => $testType,
                 "testname" => $testname,
@@ -86,24 +92,24 @@ function readCoverageFromFolder($coveragePath, $runID, $testType) {
 
         //DO FILE + LINE INSERTS
         foreach ($fileCoverage->getData(true)->lineCoverage() as $testFile => $content) {
+            // not found in initial cache
             if (!isset($cachedFiles[$testFile])) {
-                DB::insert("CC_FILES", [
-                    "filepath" => $testFile,
-                    "ccrunid" => $cachedCCRUNID
-                ]);
-                $cachedFiles[$testFile] = DB::insertId();
+                $existingFile = DB::query(
+                    "SELECT * FROM CC_FILES WHERE ccrunid=%s AND filepath=%s",
+                    $cachedCCRUNID, $testFile
+                );
+                // found in DB
+                if (!empty($existingFile)) {
+                    $cachedFiles[$existingFile[0]['filepath']] = $existingFile[0]['fileid'];
+                } else {
+                    // actual new record
+                    DB::insert("CC_FILES", [
+                        "filepath" => $testFile,
+                        "ccrunid" => $cachedCCRUNID
+                    ]);
+                    $cachedFiles[$testFile] = DB::insertId();
+                }
             }
-//            $existingFile = DB::query(
-//                "SELECT * FROM CC_FILES WHERE ccrunid=%s AND filepath=%s",
-//                $cachedCCRUNID, $testFile
-//            );
-//            if (empty($existingFile)) {
-//                DB::insert("CC_FILES", [
-//                    "filepath" => $testFile,
-//                    "ccrunid" => $cachedCCRUNID
-//                ]);
-//                $cachedFiles[$testFile] = DB::insertId();
-//            }
             foreach ($content as $lineNumber => $tests) {
                 foreach ($tests as $test) {
                     $existingLine = DB::query(
@@ -123,7 +129,10 @@ function readCoverageFromFolder($coveragePath, $runID, $testType) {
         }
         printf("Inserted from file {$file}\n");
     }
+    $endtime = microtime(TRUE);
+    $runtime = $endtime-$start_time;
     printf("Inserted from all files in {$coveragePath}\n");
+    printf("Execution took {$runtime} seconds.\n");
 }
 
 /**
