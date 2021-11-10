@@ -8,8 +8,7 @@ Works by reading base provided and stripping away lines covered in the additiona
 ## Prerequisites
 * [phpcov](https://github.com/sebastianbergmann/phpcov)
 
-## Usage
-
+## Setup
 Organize the following:
 * Folder with baseline .cov files
 * Folder with additional .cov files (to compare against)
@@ -24,7 +23,19 @@ Ensure the above line is pointed at a real Magento codebase before proceeding. U
 find ./coveragePath -name '*.cov' -print0 | xargs -0 sed -i "" "s|pathToFind|pathToReplace|g"
 ```
 
-After completing this, go into `parseCoverage.php` and fill out the following lines:
+## Scripts
+
+* findCoverageAndTestDiff.php
+* findUniqueTests.php
+* mergeCoverage.php
+* parseCoverage.php
+* relabelFilePaths.php
+* relabelTest.php
+
+## Usage
+
+### parseCoverage.php
+Fill out the following lines in `parseCoverage.php`:
 
 ```php
 $baseCoverageDir = '';
@@ -35,4 +46,18 @@ $deltaDestinationPath = '';
 Once complete, simply run via `php parseCoverage.php`, the result `.cov` file can then be generated into a coverage report.
 ```
 php phpcov.phar merge ./deltaOutputPath/ --html=output
+```
+
+### mergeCoverage.php
+Define `SRC_DIR`, `MERGE_DIR`, and `MERGE_SIZE` in `mergeCoverage.php`, and run script to merge cov files in `SRC_DIR`
+with merge size `MERGE_SIZE` and generate merged cov files in `MERGE_DIR`.
+```
+php mergeCoverage.php
+```
+
+### findCoverageAndTestDiff.php
+Define `BASE_DIR`, `ADDITIONAL_DIR`, and `DELTA_DIR` in `findCoverageAndTestDiff.php`, and run script to find the coverage and test diff between base and additional. 
+The results will be saved in `DELTA_DIR`. It can be used wih `mergeCoverage.php`.
+```
+php findCoverageAndTestDiff.php
 ```
