@@ -27,5 +27,5 @@
         "customName": "",
         "branchesToScan": []
     },
-    "productionCodeBranches": ["main"]
+    "productionCodeBranches": ["master"]
 }
