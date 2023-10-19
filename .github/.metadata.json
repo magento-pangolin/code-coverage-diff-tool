@@ -1,5 +1,5 @@
 {
-    "templateVersion": "0.1",
+    "templateVersion": "0.2",
     "product": {
         "name": "Code coverage diff tool",
         "description": "This tool finds difference between 2 codecoverage reports to identify interlinkage of code coverage."
@@ -26,5 +26,6 @@
         "frequency": "",
         "customName": "",
         "branchesToScan": []
-    }
+    },
+    "productionCodeBranches": ["master"]
 }
