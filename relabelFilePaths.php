@@ -46,7 +46,7 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath)
             $newData[$newTestFilePath] = $content;
         }
         //place lineCoverage
-        $newProcessedData = new \SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData();
+        $newProcessedData = new SebastianBergmann\CodeCoverage\Data\ProcessedCodeCoverageData();
         $newProcessedData->setLineCoverage($newData);
         $fileCoverage->setData($newProcessedData);
         // rebuild filter
