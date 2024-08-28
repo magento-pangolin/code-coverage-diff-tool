@@ -59,7 +59,7 @@ function readCoverageFromFolder($coveragePath, $outputDir, $newName) {
                 $newData[$testFile][$line] = $testArray;
             }
         }
-        $newProcessedData = new \SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData();
+        $newProcessedData = new SebastianBergmann\CodeCoverage\Data\ProcessedCodeCoverageData();
         $newProcessedData->setLineCoverage($newData);
         $fileCoverage->setData($newProcessedData);
         $newTestArray = [];
