@@ -39,16 +39,16 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath)
             continue;
         }
         $fileCoverage = readCoverage($coveragePath . DIRECTORY_SEPARATOR . $file);
+
         // rebuild coverage data
         $newData = [];
         foreach ($fileCoverage->getData(true)->lineCoverage() as $testFile => $content) {
             $newTestFilePath = str_replace($oldPath, $newPath, $testFile);
             $newData[$newTestFilePath] = $content;
         }
-        //place lineCoverage
         $newProcessedData = new SebastianBergmann\CodeCoverage\Data\ProcessedCodeCoverageData();
         $newProcessedData->setLineCoverage($newData);
-        $fileCoverage->setData($newProcessedData);
+
         // rebuild filter
         $filter = $fileCoverage->filter();
         call_user_func(\Closure::bind(
@@ -63,24 +63,22 @@ function readCoverageFromFolder($coveragePath, $oldPath, $newPath)
             null,
             $filter
         ));
-        //place new filter
-        call_user_func(\Closure::bind(
-            function () use ($fileCoverage, $filter) {
-                $fileCoverage->filter = $filter;
-            },
-            null,
-            $fileCoverage
-        ));
-        // delete cached analyzer
-        call_user_func(\Closure::bind(
-            function () use ($fileCoverage) {
-                $fileCoverage->coveredFileAnalyser = null;
-            },
-            null,
-            $fileCoverage
-        ));
+
+        // grab private driver object
+        $grabDriver = Closure::bind(function($fileCoverage) {
+            return $fileCoverage->driver;
+        }, null, get_class($fileCoverage));
+        $driver = $grabDriver($fileCoverage);
+
+        // free up memory before we rebuild the object
+        unset($fileCoverage);
+
+        // build new Coverage object as filter can no longer be replaced
+        $newCoverage = new SebastianBergmann\CodeCoverage\CodeCoverage($driver, $filter);
+        $newCoverage->setData($newProcessedData);
+
         $writer = new SebastianBergmann\CodeCoverage\Report\PHP();
-        $writer->process($fileCoverage, $coveragePath . DIRECTORY_SEPARATOR . $file);
+        $writer->process($newCoverage, $coveragePath . DIRECTORY_SEPARATOR . $file);
     }
     printf("All .cov file paths changed in $coveragePath\n");
 }
